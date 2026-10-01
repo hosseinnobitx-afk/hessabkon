@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>حساب کن</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <!-- صفحه ورود -->
+    <div id="loginScreen" class="login-container">
+      <div class="login-box">
+        <div class="login-header">
+          <img class="logo-large" alt="لوگو">
+          <h1>حساب کن</h1>
+          <p class="subtitle">نرم‌افزار حسابداری</p>
+        </div>
+        <form id="loginForm">
+          <input id="username" placeholder="نام کاربری" autocomplete="off" required>
+          <input id="password" type="password" placeholder="رمز عبور" required>
+          <button class="btn btn-primary" type="submit">ورود</button>
+          <div id="loginError" class="error-msg"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- برنامه اصلی -->
+    <div id="app" class="app hidden">
+      <!-- هدر -->
+      <div class="w">
+        <div class="hero">
+          <img class="lg" alt="">
+          <div>
+            <b>حساب کن</b>
+            <small id="companyDisplay">شرکت نمونه</small>
+          </div>
+          <span style="flex:1"></span>
+          <button class="b" id="logoutBtn">خروج</button>
+        </div>
+
+        <!-- تب‌ها -->
+        <div class="tabs" id="tabs">
+          <button class="tab-btn on" data-view="overview">داشبورد</button>
+          <button class="tab-btn" data-view="transactions">تراکنش‌ها</button>
+          <button class="tab-btn" data-view="accounts">حساب‌ها</button>
+          <button class="tab-btn" data-view="categories">دسته‌ها</button>
+          <button class="tab-btn" data-view="reports">گزارش‌ها</button>
+          <button class="tab-btn" data-view="settings">تنظیمات</button>
+        </div>
+
+        <!-- نمایش‌های مختلف -->
+        <!-- 1. داشبورد -->
+        <div id="overview" class="view on">
+          <div class="g4">
+            <div class="cd">
+              <div class="ch">
+                <h3>درآمد</h3>
+              </div>
+              <div class="big" id="totalIncome">۰</div>
+            </div>
+            <div class="cd">
+              <div class="ch">
+                <h3>هزینه</h3>
+              </div>
+              <div class="big" id="totalExpense">۰</div>
+            </div>
+            <div class="cd">
+              <div class="ch">
+                <h3>موجودی</h3>
+              </div>
+              <div class="big" id="totalBalance">۰</div>
+            </div>
+            <div class="cd">
+              <div class="ch">
+                <h3>تعداد</h3>
+              </div>
+              <div class="big" id="txCount">۰</div>
+            </div>
+          </div>
+
+          <div class="cd">
+            <div class="ch">
+              <h3>تراکنش‌های اخیر</h3>
+            </div>
+            <div class="tw">
+              <table id="recentTable">
+                <thead>
+                  <tr>
+                    <th>عنوان</th>
+                    <th>دسته</th>
+                    <th>حساب</th>
+                    <th>مبلغ</th>
+                    <th>نوع</th>
+                    <th>تاریخ</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. تراکنش‌ها -->
+        <div id="transactions" class="view">
+          <div class="g2">
+            <!-- فرم اضافه تراکنش -->
+            <div class="cd">
+              <div class="ch">
+                <h3>ثبت تراکنش</h3>
+              </div>
+              <form id="txForm">
+                <div class="f">
+                  <label>نوع</label>
+                  <select id="txType" required>
+                    <option value="income">درآمد</option>
+                    <option value="expense">هزینه</option>
+                  </select>
+                </div>
+                <div class="f">
+                  <label>تاریخ</label>
+                  <input type="date" id="txDate" required>
+                </div>
+                <div class="f">
+                  <label>عنوان</label>
+                  <input type="text" id="txTitle" placeholder="مثلاً فروش" required>
+                </div>
+                <div class="f">
+                  <label>دسته</label>
+                  <select id="txCategory" required></select>
+                </div>
+                <div class="f">
+                  <label>حساب</label>
+                  <select id="txAccount" required></select>
+                </div>
+                <div class="f">
+                  <label>مبلغ</label>
+                  <input type="number" id="txAmount" min="0" required>
+                </div>
+                <div class="f">
+                  <label>توضیح</label>
+                  <textarea id="txDescription" rows="3"></textarea>
+                </div>
+                <div class="row">
+                  <button type="submit" class="b pr">ثبت</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- لیست تراکنش‌ها -->
+            <div class="cd">
+              <div class="ch">
+                <h3>تراکنش‌ها</h3>
+              </div>
+              <div class="f">
+                <label>فیلتر بر اساس نوع</label>
+                <select id="filterType">
+                  <option value="">همه</option>
+                  <option value="income">درآمد</option>
+                  <option value="expense">هزینه</option>
+                </select>
+              </div>
+              <div class="f">
+                <label>فیلتر بر اساس دسته</label>
+                <select id="filterCategory">
+                  <option value="">همه</option>
+                </select>
+              </div>
+              <div class="f">
+                <label>فیلتر بر اساس حساب</label>
+                <select id="filterAccount">
+                  <option value="">همه</option>
+                </select>
+              </div>
+              <div class="tw">
+                <table id="txTable">
+                  <thead>
+                    <tr>
+                      <th>عنوان</th>
+                      <th>دسته</th>
+                      <th>حساب</th>
+                      <th>مبلغ</th>
+                      <th>نوع</th>
+                      <th>تاریخ</th>
+                      <th>عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="txBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. حساب‌ها -->
+        <div id="accounts" class="view">
+          <div class="g2">
+            <!-- اضافه حساب جدید -->
+            <div class="cd">
+              <div class="ch">
+                <h3>حساب جدید</h3>
+              </div>
+              <form id="accountForm">
+                <div class="f">
+                  <label>نام حساب</label>
+                  <input type="text" id="accName" required>
+                </div>
+                <div class="f">
+                  <label>نوع</label>
+                  <select id="accType" required>
+                    <option value="asset">دارایی</option>
+                    <option value="liability">بدهی</option>
+                    <option value="income">درآمد</option>
+                    <option value="expense">هزینه</option>
+                  </select>
+                </div>
+                <div class="f">
+                  <label>موجودی او��یه</label>
+                  <input type="number" id="accBalance" min="0" value="0">
+                </div>
+                <div class="row">
+                  <button type="submit" class="b pr">افزودن</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- لیست حساب‌ها -->
+            <div class="cd">
+              <div class="ch">
+                <h3>حساب‌های سیستم</h3>
+              </div>
+              <div id="accountList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. دسته‌بندی‌ها -->
+        <div id="categories" class="view">
+          <div class="g2">
+            <!-- اضافه دسته جدید -->
+            <div class="cd">
+              <div class="ch">
+                <h3>دسته جدید</h3>
+              </div>
+              <form id="categoryForm">
+                <div class="f">
+                  <label>نام دسته</label>
+                  <input type="text" id="catName" required>
+                </div>
+                <div class="f">
+                  <label>نوع</label>
+                  <select id="catType" required>
+                    <option value="income">درآمد</option>
+                    <option value="expense">هزینه</option>
+                  </select>
+                </div>
+                <div class="row">
+                  <button type="submit" class="b pr">افزودن</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- لیست دسته‌ها -->
+            <div class="cd">
+              <div class="ch">
+                <h3>دسته‌های دیتابیس</h3>
+              </div>
+              <div id="categoryList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. گزارش‌ها -->
+        <div id="reports" class="view">
+          <div class="cd">
+            <div class="ch">
+              <h3>گزارش سود و زیان</h3>
+            </div>
+            <table id="profitTable">
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="cd">
+            <div class="ch">
+              <h3>موجودی حساب‌ها</h3>
+            </div>
+            <table id="balanceTable">
+              <thead>
+                <tr>
+                  <th>نام حساب</th>
+                  <th>نوع</th>
+                  <th>موجودی</th>
+                </tr>
+              </thead>
+              <tbody id="balanceBody"></tbody>
+            </table>
+          </div>
+
+          <div class="cd">
+            <div class="ch">
+              <h3>نمودار ماهانه</h3>
+            </div>
+            <div class="ch2" id="monthlyChart"></div>
+          </div>
+        </div>
+
+        <!-- 6. تنظیمات -->
+        <div id="settings" class="view">
+          <div class="cd">
+            <div class="ch">
+              <h3>تنظیمات</h3>
+            </div>
+            <form id="settingsForm">
+              <div class="f">
+                <label>نام کسب‌وکار</label>
+                <input type="text" id="companyName" value="شرکت نمونه">
+              </div>
+              <div class="f">
+                <label>واحد پول</label>
+                <select id="currency">
+                  <option value="IRR">ریال</option>
+                  <option value="USD">دلار</option>
+                  <option value="EUR">یورو</option>
+                </select>
+              </div>
+              <div class="row">
+                <button type="submit" class="b pr">ذخیره</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
